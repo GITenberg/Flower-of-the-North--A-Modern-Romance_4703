@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Ciqq3AmLydz66RYJ+qWkaB8/2VfluVM2voKWLYfSjw9Juvac+Qd51a0NZe02Y9oJS4G4+WiT3eXaKtCWXKzLCmat8JkwaCXMEnaj9Hv2dQaMpSV4Tc7uIs54ZZemgqJUTGrsKFbfPkXmzqntdjD396ID5IsWbCPy8TIBOKkNwS0WNRUWT9x2LzEitmoQ4yK9JEPlQekMYvpTJUh9QwozwLFnP9YTG+AbokHNY+Upl8LelxTNy+LvdJKifwwtNGdlkvGyo7RPYrz8PHjn6pAQBsXY14p37xYzefBoLb4q86RwoJv9OazTfAY5la+zynl8qmNz1/rb8Lm6dTDrH6gyWsSx/Lp+tCCpS0hAlM8eFTX0pyTbroCAvLnhefrVCSqiUpPquLKwlaY3Ffkr8LwIlj1FBWd8RsSL30B5ACfOwA9+gulS7btQQ389Ewc8hP4zXryMyQcJ1av7CGBRNCHu6idW2+X982cbu6exZqqj37Y6b4Lox0FVNhE9pnwIZQ2O5nqMNMKud6go6VjDTOPmh/hAQRWgeVb4wjRZqFhNCa8VPuTMUVcXrsSpQGqlaWTpjjKBEWTqof/90EEKWyy6DcO8EXUv9qBsmBsORM11hkqTSrdG15Dn5wsGWnmNoJfTg542zaKpxbaNL9x7Cf3JQPrTZpAmcFWKZFJuE6qvR7A=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Flower-of-the-North--A-Modern-Romance_4703
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
